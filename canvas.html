@@ -112,7 +112,7 @@
 
         function drawPixel(x, y, color)
         {
-            index = width * (y - 1) + x;   
+            index = width * y + x;   
             buffer[index] = color;        
 
             context.fillStyle = colorToString(color);
@@ -121,7 +121,7 @@
 
         function getPixel(x, y)
         {
-            index = width * (y - 1) + x;           
+            index = width * y + x;           
             value = buffer[index];
             return (value == null) ? 0 : value;
         }
