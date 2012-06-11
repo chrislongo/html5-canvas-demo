@@ -1,0 +1,86 @@
+<html>
+<head>
+    <title></title>
+    <script type="text/javascript">
+
+        var context;
+        var palette = Array();
+
+        function init()
+        {
+             element = document.getElementById('canvas');
+             initPalette();
+             context = element.getContext("2d");
+             context.fillRect(0, 0, 200, 200);
+             update();
+        }
+
+        function initPalette()
+        {
+            for(i = 0; i < 64; i++)
+            {
+                palette[i] = rgbToColor((i << 2), 0, 0);
+                palette[i + 64] = rgbToColor(255, (i << 2), 0);
+                palette[i + 128] = rgbToColor(255, 255, (i << 2));
+                palette[i + 192] = rgbToColor(255, 255, 255);
+            }
+        }
+
+        function rgbToColor(r, g, b)
+        {
+            color = 0;
+
+            color |= (r << 16);
+            color |= (g << 8);
+            color |= (b);
+
+            return color;            
+        }
+
+        function colorToString(color)
+        {
+            return "#" + ("00000" + (color).toString(16)).slice(-6);
+        }
+
+        function update()
+        {
+            for(x = 0; x < palette.length; x++)
+                drawPixel(x, 100, palette[x]);
+
+            requestAnimFrame(function(){
+                update();
+            });
+        }
+
+        function drawPixel(x, y, color)
+        {
+            context.fillStyle = colorToString(color);
+            context.fillRect(x, y, 1, 1);
+        }
+
+        function randomValue()
+        {
+            return Math.round(Math.random() * 255);
+        }
+
+        window.onload = function(){
+            init();
+        };
+
+        window.requestAnimFrame = (function(callback){
+            return window.requestAnimationFrame ||
+            window.webkitRequestAnimationFrame ||
+            window.mozRequestAnimationFrame ||
+            window.oRequestAnimationFrame ||
+            window.msRequestAnimationFrame ||
+            function(callback){
+                window.setTimeout(callback, 1000 / 60);
+            };
+        })();
+ 
+    </script>
+</head>
+<body>
+<canvas id="canvas" width="200" height="200"></canvas>
+</body>
+</html>
