@@ -1,8 +1,13 @@
 <html>
 <head>
     <title></title>
+    <style type="text/css">
+        #canvas {
+            position: absolute;
+            clip: rect(0, 320px, 196px, 0);
+        }
+    </style>
     <script type="text/javascript">
-
         var context;
         var palette;
         var colorMap;
@@ -50,24 +55,23 @@
         {
             for(x = 0; x < width / scale; x++)
             {
-                for(y = 0; y < height; y++)
+                for(y = 0; y < height / scale; y++)
                 {
-                    coolingMap[(width * y + x) / scale] = randomValue(5);
+                    coolingMap[toIndex(x, y)] = randomValue(5);
                 }
             }
 
-            var values = Array(4);
-
-            for(x = 0; x < width / scale; x++)
+            for(x = 1; x < width / scale - 1; x++)
             {
-                for(y = 0; y < height; y++)
+                for(y = 1; y < height / scale - 1; y++)
                 {
-                    values[0] = coolingMap[toIndex(x, y - 1)];
-                    values[1] = coolingMap[toIndex(x - 1, y)];
-                    values[2] = coolingMap[toIndex(x + 1, y)];
-                    values[3] = coolingMap[toIndex(x, y + 1)];
+                    var p = (
+                        coolingMap[toIndex(x, y - 1)] + 
+                        coolingMap[toIndex(x - 1, y)] +
+                        coolingMap[toIndex(x + 1, y)] +
+                        coolingMap[toIndex(x, y + 1)]) / 4;
 
-                    coolingMap[toIndex(x, y)] = average(values);
+                    coolingMap[toIndex(x, y)] = Math.floor(p);
                 }
             }
         }
@@ -145,31 +149,6 @@
                         drawPixel(x, y, palette[value]);        
                 }
             }       
-        }
-
-        function average(pixels)
-        {
-            var rt = 0;
-            var gt = 0;
-            var bt = 0;
-
-            for(i = 0; i < pixels.length; i++)
-            {
-                var pixel = pixels[i];
-                
-                var r = (pixel >> 16);
-                var g = (pixel >> 8) & 0xff;    
-                var b = (pixel) & 0xff;
-
-                rt += r;
-                gt += g;
-                bt += b;
-            }
-
-            return rgbToColor(
-                rt / pixels.length,
-                gt / pixels.length,
-                bt / pixels.length);
         }
 
         function drawPixel(x, y, color)
