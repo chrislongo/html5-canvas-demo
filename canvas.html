@@ -2,6 +2,12 @@
 <head>
     <title></title>
     <script type="text/javascript" src="canvas.js"></script>
+    <script type="text/javascript">
+        setInterval(function()
+        {
+            document.getElementById("framerate").innerHTML = "FPS: " + canvasDemo.framerate();
+        }, 1000);
+    </script>
 </head>
 <body>
     <div id="content">        
@@ -10,6 +16,7 @@
     <div id="controls">
         <button id="fanDown" onclick="canvasDemo.fanDown()">&lt;</button>
         <button id="fanUp" onclick="canvasDemo.fanUp()">&gt;</button>
+        <div id="framerate"></div>
     </div>
 </body>
 </html>

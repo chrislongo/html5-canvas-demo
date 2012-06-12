@@ -8,6 +8,8 @@ var canvasDemo = new function()
     var height;
     var scale = 2;
     var fan = 0;
+    var start;
+    var frames = 0;
 
     this.init = function()
     {
@@ -27,6 +29,8 @@ var canvasDemo = new function()
 
          context = element.getContext("2d");
          context.fillRect(0, 0, width, height - 5);
+
+         start = new Date().getTime();
 
          update();
     };
@@ -140,6 +144,8 @@ var canvasDemo = new function()
                     drawPixel(x, y, palette[value]);        
             }
         }       
+
+        frames++;
     };
 
     var drawPixel = function(x, y, color)
@@ -161,6 +167,13 @@ var canvasDemo = new function()
     this.fanUp = function()
     {
         fan = Math.max(-1, fan - 1);
+    };
+
+    this.framerate = function()
+    {
+        var now = new Date().getTime();
+        var seconds = (now - start) / 1000;
+        return Math.floor(frames / seconds);
     };
 };
 
