@@ -203,6 +203,16 @@ var canvasDemo = new function()
         }
     };
 
+    this.drawEmbers = function()
+    {
+        for(var x = 1; x < width / scale - 1; x++)
+            for(var y = 1; y < height; y++)
+                if(randomValue(10) === 0)
+                    colorMap[toIndex(x, y)] = randomValue(palette.length);
+
+        smooth();                
+    };
+
     this.fanDown = function()
     {
         fan = Math.min(5, fan + 1);   
