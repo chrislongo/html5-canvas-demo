@@ -4,10 +4,12 @@
     <script type="text/javascript">
 
         var context;
-        var palette = Array();
-        var buffer = Array();
+        var palette;
+        var buffer;
+        var coolingMap;
         var width;
         var height;
+        var scale = 4;
 
         function init()
         {
@@ -17,13 +19,21 @@
              width = element.width;
              height = element.height;
 
+             buffer = Array(width * height / scale);
+             coolingMap = Array(width * height / scale);
+
+             initCoolingMap();
+
              context = element.getContext("2d");
-             
+             context.fillRect(0, 0, width, height);
+
              update();
         }
 
         function initPalette()
         {
+            palette = Array(256);
+
             for(i = 0; i < 64; i++)
             {
                 palette[i] = rgbToColor((i << 2), 0, 0);
@@ -33,15 +43,40 @@
             }
         }
 
+        function initCoolingMap()
+        {
+            for(x = 0; x < width / scale; x++)
+            {
+                for(y = 0; y < height; y++)
+                {
+                    coolingMap[(width * y + x) / scale] = randomValue(6);
+                }
+            }
+
+            var values = Array(4);
+
+            for(x = 0; x < width / scale; x++)
+            {
+                for(y = 0; y < height; y++)
+                {
+                    values[0] = coolingMap[pointToIndex(x, y - 1)];
+                    values[1] = coolingMap[pointToIndex(x - 1, y)];
+                    values[2] = coolingMap[pointToIndex(x + 1, y)];
+                    values[3] = coolingMap[pointToIndex(x, y + 1)];
+
+                    coolingMap[pointToIndex(x, y)] = average(values);
+                }
+            }
+        }
+
+        function pointToIndex(x, y)
+        {
+            return (width * y + x) / scale;  
+        }
+
         function rgbToColor(r, g, b)
         {
-            color = 0;
-
-            color |= (r << 16);
-            color |= (g << 8);
-            color |= (b);
-
-            return color;            
+            return (r << 16 | g << 8 | b);          
         }
 
         function colorToString(color)
@@ -51,8 +86,11 @@
 
         function update()
         {
-            for(x = 0; x < width; x++)
-                drawPixel(x, height - 1, palette[randomValue(palette.length - 1)]);
+            for(x = 0; x < width / scale; x++)
+            {
+                drawPixel(x, height / scale, palette[randomValue(palette.length)]);
+                drawPixel(x, height / scale - 1, palette[randomValue(palette.length)]);
+            }
 
             smooth();
 
@@ -63,11 +101,11 @@
 
         function smooth()
         {
-            pixels = Array(8);
+            var pixels = Array(8);
 
-            for(x = 0; x < width; x++)
+            for(x = 2; x < width / scale - 2; x++)
             {
-                for(y = 0; y < height; y++)
+                for(y = 0; y < height / scale; y++)
                 {
                     pixels[0] = getPixel(x - 1, y - 1);
                     pixels[1] = getPixel(x, y - 1);
@@ -79,6 +117,8 @@
                     pixels[7] = getPixel(x + 1, y + 1);
 
                     pixel = average(pixels);
+
+                    pixel = sub(pixel, coolingMap[pointToIndex(x, y)]);
                     
                     drawPixel(x, y - 1, pixel);
                 }
@@ -87,17 +127,17 @@
 
         function average(pixels)
         {
-            rt = 0;
-            gt = 0;
-            bt = 0;
+            var rt = 0;
+            var gt = 0;
+            var bt = 0;
 
             for(i = 0; i < pixels.length; i++)
             {
-                pixel = pixels[i];
+                var pixel = pixels[i];
                 
-                r = (pixel >> 16);
-                g = (pixel >> 8) & 0xff;    
-                b = (pixel) & 0xff;
+                var r = (pixel >> 16);
+                var g = (pixel >> 8) & 0xff;    
+                var b = (pixel) & 0xff;
 
                 rt += r;
                 gt += g;
@@ -110,25 +150,38 @@
                 bt / pixels.length);
         }
 
+        function sub(pixel, value)
+        {
+            var r = (pixel >> 16);
+            var g = (pixel >> 8) & 0xff;    
+            var b = (pixel) & 0xff;
+
+            r = Math.max(0, r - value);
+            g = Math.max(0, g - value);
+            b = Math.max(0, b - value);
+
+            return rgbToColor(r, g, b);
+        }
+
         function drawPixel(x, y, color)
         {
-            index = width * y + x;   
-            buffer[index] = color;        
+            var index = width * y + x;   
+            buffer[index / scale] = color;        
 
             context.fillStyle = colorToString(color);
-            context.fillRect(x, y, 1, 1);
+            context.fillRect(x * scale, y * scale, scale, scale);
         }
 
         function getPixel(x, y)
         {
-            index = width * y + x;           
-            value = buffer[index];
+            var index = width * y + x;           
+            value = buffer[index / scale];
             return (value == null) ? 0 : value;
         }
 
         function randomValue(max)
         {
-            return Math.round(Math.random() * max);
+            return Math.round(Math.random() * (max - 1));
         }
 
         window.onload = function(){
@@ -149,6 +202,6 @@
     </script>
 </head>
 <body>
-<canvas id="canvas" width="200" height="200"></canvas>
+<canvas id="canvas" width="320" height="200"></canvas>
 </body>
 </html>
