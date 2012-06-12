@@ -1,6 +1,7 @@
 var canvasDemo = new function() 
 {
     var context;
+    var offScreenContext;
     var palette;
     var colorMap;
     var coolingMap;
@@ -28,12 +29,13 @@ var canvasDemo = new function()
             colorMap[i] = 0;
 
          initCoolingMap();
+         initOffScreenContext();
 
          context = element.getContext("2d");
-         context.fillRect(0, 0, width, height - (5 + slack));
 
          start = new Date().getTime();
 
+         clear();
          update();
     };
 
@@ -73,6 +75,14 @@ var canvasDemo = new function()
                 coolingMap[toIndex(x, y)] = p;
             }
         }
+    };
+
+    var initOffScreenContext = function()
+    {
+        var canvas = document.createElement('canvas');
+        canvas.width = width / scale;
+        canvas.height = width / scale;
+        offScreenContext = canvas.getContext("2d");
     };
 
     var update = function()
@@ -119,7 +129,7 @@ var canvasDemo = new function()
     {
         for(var x = 0; x < width / scale; x++)
         {
-            for(var y = interleave; y < (height / scale) - slack; y+= 2)
+            for(var y = interleave; y < height / scale - slack; y+= 2)
             {
                 var index = toIndex(x, y);
                 var value = colorMap[index];
@@ -127,7 +137,7 @@ var canvasDemo = new function()
                 if(value === null) 
                     value = 0;
                 
-                if(colorMap[index] !== 0)
+                if(value !== 0)
                     drawPixel(x, y, palette[value]);        
             }
         }    
@@ -140,6 +150,12 @@ var canvasDemo = new function()
     {
         context.fillStyle = colorToString(color);
         context.fillRect(x * scale, y * scale, scale, scale);
+    };
+
+    var clear = function()
+    {
+        context.fillStyle = 'rgb(0, 0, 0)';
+        context.fillRect(0, 0, width, height - (5 + slack));
     };
 
     var randomValue = function(max)
@@ -160,6 +176,31 @@ var canvasDemo = new function()
     var colorToString = function(color)
     {
         return "#" + ("00000" + (color).toString(16)).slice(-6);
+    };
+
+    this.drawOverlay = function(imageSource)
+    {
+        clear();
+
+        var img = new Image();
+        img.src = imageSource;
+
+        offScreenContext.drawImage(img, 0, 0, width / scale, height / scale);
+
+        for(var x = 0; x < 0 + (width / scale); x++)
+        {
+            for(var y = 0; y < 0 + (height / scale); y++)
+            {
+                var data = offScreenContext.getImageData(x, y, 1, 1).data;
+
+                var index = toIndex(x - 0, y - 0);
+
+                if(data[0] == 255 && data[1] == 255 && data[2] == 255)
+                    colorMap[index] = randomValue(palette.length);
+                else 
+                    colorMap[index] = 0;
+            }
+        }
     };
 
     this.fanDown = function()
