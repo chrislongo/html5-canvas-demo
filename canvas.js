@@ -10,6 +10,8 @@ var canvasDemo = new function()
     var fan = 0;
     var start;
     var frames = 0;
+    var interleave = 0;
+    var slack = 5;
 
     this.init = function()
     {
@@ -28,7 +30,7 @@ var canvasDemo = new function()
          initCoolingMap();
 
          context = element.getContext("2d");
-         context.fillRect(0, 0, width, height - 5);
+         context.fillRect(0, 0, width, height - (5 + slack));
 
          start = new Date().getTime();
 
@@ -73,21 +75,6 @@ var canvasDemo = new function()
         }
     };
 
-    var toIndex = function(x, y)
-    {
-        return Math.floor((width * y + x) / scale);  
-    };
-
-    var rgbToColor = function(r, g, b)
-    {
-        return (r << 16 | g << 8 | b);          
-    };
-
-    var colorToString = function(color)
-    {
-        return "#" + ("00000" + (color).toString(16)).slice(-6);
-    };
-
     var update = function()
     {
         for(x = 0; x < width / scale; x++)
@@ -108,7 +95,7 @@ var canvasDemo = new function()
     {
         for(var x = 1; x < width / scale - 1; x++)
         {
-            for(var y = 0; y < height / scale; y++)
+            for(var y = interleave; y < height / scale; y+= 2)
             {
                 var p = Math.floor((
                     colorMap[toIndex(x - 1, y - 1)] + 
@@ -132,7 +119,7 @@ var canvasDemo = new function()
     {
         for(var x = 0; x < width / scale; x++)
         {
-            for(var y = 0; y < (height / scale) - 2; y++)
+            for(var y = interleave; y < (height / scale) - slack; y+= 2)
             {
                 var index = toIndex(x, y);
                 var value = colorMap[index];
@@ -143,8 +130,9 @@ var canvasDemo = new function()
                 if(colorMap[index] !== 0)
                     drawPixel(x, y, palette[value]);        
             }
-        }       
+        }    
 
+        interleave = !interleave;
         frames++;
     };
 
@@ -157,6 +145,21 @@ var canvasDemo = new function()
     var randomValue = function(max)
     {
         return Math.round(Math.random() * (max - 1));
+    };
+
+    var toIndex = function(x, y)
+    {
+        return Math.floor((width * y + x) / scale);  
+    };
+
+    var rgbToColor = function(r, g, b)
+    {
+        return (r << 16 | g << 8 | b);          
+    };
+
+    var colorToString = function(color)
+    {
+        return "#" + ("00000" + (color).toString(16)).slice(-6);
     };
 
     this.fanDown = function()
