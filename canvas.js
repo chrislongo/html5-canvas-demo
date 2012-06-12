@@ -67,7 +67,7 @@ var canvasDemo = new function()
             for(y = 1; y < height / scale - 1; y++)
             {
                 var p = Math.floor((
-                    coolingMap[toIndex(x, y - 1)] + 
+                    coolingMap[toIndex(x, y - 1)] +
                     coolingMap[toIndex(x - 1, y)] +
                     coolingMap[toIndex(x + 1, y)] +
                     coolingMap[toIndex(x, y + 1)]) / 4);
@@ -108,13 +108,13 @@ var canvasDemo = new function()
             for(var y = interleave; y < height / scale; y+= 2)
             {
                 var p = Math.floor((
-                    colorMap[toIndex(x - 1, y - 1)] + 
-                    colorMap[toIndex(x, y - 1)] + 
-                    colorMap[toIndex(x + 1, y - 1)] + 
-                    colorMap[toIndex(x - 1, y)] + 
-                    colorMap[toIndex(x + 1, y)] + 
-                    colorMap[toIndex(x - 1, y + 1)] + 
-                    colorMap[toIndex(x, y + 1)] + 
+                    colorMap[toIndex(x - 1, y - 1)] +
+                    colorMap[toIndex(x, y - 1)] +
+                    colorMap[toIndex(x + 1, y - 1)] +
+                    colorMap[toIndex(x - 1, y)] +
+                    colorMap[toIndex(x + 1, y)] +
+                    colorMap[toIndex(x - 1, y + 1)] +
+                    colorMap[toIndex(x, y + 1)] +
                     colorMap[toIndex(x + 1, y + 1)]) / 8);
 
                 var cool = coolingMap[toIndex(x, y)] + fan;
@@ -134,13 +134,13 @@ var canvasDemo = new function()
                 var index = toIndex(x, y);
                 var value = colorMap[index];
                 
-                if(value === null) 
+                if(value === null)
                     value = 0;
                 
                 if(value !== 0)
-                    drawPixel(x, y, palette[value]);        
+                    drawPixel(x, y, palette[value]);
             }
-        }    
+        }
 
         interleave = !interleave;
         frames++;
@@ -165,12 +165,12 @@ var canvasDemo = new function()
 
     var toIndex = function(x, y)
     {
-        return Math.floor((width * y + x) / scale);  
+        return Math.floor((width * y + x) / scale);
     };
 
     var rgbToColor = function(r, g, b)
     {
-        return (r << 16 | g << 8 | b);          
+        return (r << 16 | g << 8 | b);
     };
 
     var colorToString = function(color)
@@ -197,7 +197,7 @@ var canvasDemo = new function()
 
                 if(data[0] == 255 && data[1] == 255 && data[2] == 255)
                     colorMap[index] = randomValue(palette.length);
-                else 
+                else
                     colorMap[index] = 0;
             }
         }
@@ -210,12 +210,12 @@ var canvasDemo = new function()
                 if(randomValue(10) === 0)
                     colorMap[toIndex(x, y)] = randomValue(palette.length);
 
-        smooth();                
+        smooth();
     };
 
     this.fanDown = function()
     {
-        fan = Math.min(5, fan + 1);   
+        fan = Math.min(5, fan + 1);
     };
 
     this.fanUp = function()
@@ -245,4 +245,4 @@ window.requestAnimFrame = (function(callback){
     function(callback){
         window.setTimeout(callback, 1000 / 60);
     };
-})(); 
+})();
