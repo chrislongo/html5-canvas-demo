@@ -14,11 +14,11 @@ var canvasDemo = new function()
     var interleave = 0;
     var slack = 5;
 
-    this.init = function()
+    this.init = function(canvasElement)
     {
          initPalette();
 
-         element = document.getElementById('canvas');
+         element = document.getElementById(canvasElement);
          width = element.width;
          height = element.height;
 
@@ -178,14 +178,11 @@ var canvasDemo = new function()
         return "#" + ("00000" + (color).toString(16)).slice(-6);
     };
 
-    this.drawOverlay = function(imageSource)
+    this.drawOverlay = function(image)
     {
         clear();
 
-        var img = new Image();
-        img.src = imageSource;
-
-        offScreenContext.drawImage(img, 0, 0, width / scale, height / scale);
+        offScreenContext.drawImage(image, 0, 0, width / scale, height / scale);
 
         for(var x = 0; x < 0 + (width / scale); x++)
         {
@@ -206,11 +203,13 @@ var canvasDemo = new function()
     this.drawEmbers = function()
     {
         for(var x = 1; x < width / scale - 1; x++)
+        {
             for(var y = 1; y < height; y++)
+            {
                 if(randomValue(10) === 0)
-                    colorMap[toIndex(x, y)] = randomValue(palette.length);
-
-        smooth();
+                    colorMap[toIndex(x, y)] = randomValue(256);
+            }
+        }
     };
 
     this.fanDown = function()
@@ -229,11 +228,6 @@ var canvasDemo = new function()
         var seconds = (now - start) / 1000;
         return Math.floor(frames / seconds);
     };
-};
-
-window.onload = function()
-{
-    canvasDemo.init();
 };
 
 window.requestAnimFrame = (function(callback){

@@ -1,14 +1,31 @@
 <html>
 <head>
     <title></title>
+    <style type="text/css">
+    body {
+        background-color:black;
+        color: ccc;
+        font-family: ‘Lucida Sans Unicode’, ‘Lucida Grande’, sans-serif;
+    }
+    </style>
     <script type="text/javascript" src="canvas.js"></script>
     <script type="text/javascript">
         setInterval(function()
         {
-            document.getElementById("framerate").innerHTML = "FPS: " + canvasDemo.framerate();
+            document.getElementById("framerate").innerHTML = 
+                "FPS: " + canvasDemo.framerate();
         }, 1000);
-        new Image().src = 'boo.png';
-        new Image().src = 'grrr.png';
+        
+        var boo = new Image();
+        boo.src = 'boo.png';
+        
+        var grrr = new Image()
+        grrr.src = 'grrr.png';
+
+        window.onload = function()
+        {
+            canvasDemo.init('canvas');
+        };
     </script>
 </head>
 <body>
@@ -18,9 +35,9 @@
     <div id="controls">
         <button id="fanDown" onclick="canvasDemo.fanDown()">&lt;</button>
         <button id="fanUp" onclick="canvasDemo.fanUp()">&gt;</button>
-        <button id="grrr" onclick="canvasDemo.drawOverlay('grrr.png')">!</button>
-        <button id="boo" onclick="canvasDemo.drawOverlay('boo.png')">X</button>
-        <button id="embers" onclick="canvasDemo.drawEmbers()">~</button>
+        <button id="grrr" onclick="canvasDemo.drawOverlay(grrr)">Grrr</button>
+        <button id="boo" onclick="canvasDemo.drawOverlay(boo)">Boo</button>
+        <button id="embers" onclick="canvasDemo.drawEmbers()">Ember</button>
     </div>
     <div id="framerate"></div>
 </body>
