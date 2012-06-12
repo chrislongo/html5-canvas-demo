@@ -5,11 +5,11 @@
 
         var context;
         var palette;
-        var buffer;
+        var colorMap;
         var coolingMap;
         var width;
         var height;
-        var scale = 4;
+        var scale = 2;
 
         function init()
         {
@@ -19,8 +19,11 @@
              width = element.width;
              height = element.height;
 
-             buffer = Array(width * height / scale);
+             colorMap = Array(width * height / scale);
              coolingMap = Array(width * height / scale);
+
+             for(var i = 0; i < colorMap.length; i++)
+                colorMap[i] = 0;
 
              initCoolingMap();
 
@@ -49,7 +52,7 @@
             {
                 for(y = 0; y < height; y++)
                 {
-                    coolingMap[(width * y + x) / scale] = randomValue(6);
+                    coolingMap[(width * y + x) / scale] = randomValue(5);
                 }
             }
 
@@ -59,19 +62,19 @@
             {
                 for(y = 0; y < height; y++)
                 {
-                    values[0] = coolingMap[pointToIndex(x, y - 1)];
-                    values[1] = coolingMap[pointToIndex(x - 1, y)];
-                    values[2] = coolingMap[pointToIndex(x + 1, y)];
-                    values[3] = coolingMap[pointToIndex(x, y + 1)];
+                    values[0] = coolingMap[toIndex(x, y - 1)];
+                    values[1] = coolingMap[toIndex(x - 1, y)];
+                    values[2] = coolingMap[toIndex(x + 1, y)];
+                    values[3] = coolingMap[toIndex(x, y + 1)];
 
-                    coolingMap[pointToIndex(x, y)] = average(values);
+                    coolingMap[toIndex(x, y)] = average(values);
                 }
             }
         }
 
-        function pointToIndex(x, y)
+        function toIndex(x, y)
         {
-            return (width * y + x) / scale;  
+            return Math.floor((width * y + x) / scale);  
         }
 
         function rgbToColor(r, g, b)
@@ -88,11 +91,12 @@
         {
             for(x = 0; x < width / scale; x++)
             {
-                drawPixel(x, height / scale, palette[randomValue(palette.length)]);
-                drawPixel(x, height / scale - 1, palette[randomValue(palette.length)]);
+                colorMap[toIndex(x, height / scale)] = randomValue(palette.length);
+                colorMap[toIndex(x, height / scale - 1)] = randomValue(palette.length);
             }
 
             smooth();
+            draw();
 
             requestAnimFrame(function(){
                 update();
@@ -101,28 +105,46 @@
 
         function smooth()
         {
-            var pixels = Array(8);
-
-            for(x = 2; x < width / scale - 2; x++)
+            for(var x = 1; x < width / scale - 1; x++)
             {
-                for(y = 0; y < height / scale; y++)
+                for(var y = 0; y < height / scale; y++)
                 {
-                    pixels[0] = getPixel(x - 1, y - 1);
-                    pixels[1] = getPixel(x, y - 1);
-                    pixels[2] = getPixel(x + 1, y - 1);
-                    pixels[3] = getPixel(x - 1, y);
-                    pixels[4] = getPixel(x + 1, y);
-                    pixels[5] = getPixel(x - 1, y + 1);
-                    pixels[6] = getPixel(x, y + 1);
-                    pixels[7] = getPixel(x + 1, y + 1);
+                    var p = (
+                        colorMap[toIndex(x - 1, y - 1)] + 
+                        colorMap[toIndex(x, y - 1)] + 
+                        colorMap[toIndex(x + 1, y - 1)] + 
+                        colorMap[toIndex(x - 1, y)] + 
+                        colorMap[toIndex(x + 1, y)] + 
+                        colorMap[toIndex(x - 1, y + 1)] + 
+                        colorMap[toIndex(x, y + 1)] + 
+                        colorMap[toIndex(x + 1, y + 1)]) / 8;
 
-                    pixel = average(pixels);
+                    p = Math.floor(p);
 
-                    pixel = sub(pixel, coolingMap[pointToIndex(x, y)]);
-                    
-                    drawPixel(x, y - 1, pixel);
+                    p -= coolingMap[toIndex(x, y)];
+                    if(p < 0) p = 0;
+
+                    colorMap[toIndex(x, y - 1)] = p;
                 }
             }
+        }
+
+        function draw()
+        {
+            for(var x = 0; x < width / scale; x++)
+            {
+                for(var y = 0; y < (height / scale) - 2; y++)
+                {
+                    var index = toIndex(x, y);
+                    var value = colorMap[index];
+                    
+                    if(value == null) 
+                        value = 0;
+                    
+                    if(colorMap[index] != 0)
+                        drawPixel(x, y, palette[value]);        
+                }
+            }       
         }
 
         function average(pixels)
@@ -150,33 +172,10 @@
                 bt / pixels.length);
         }
 
-        function sub(pixel, value)
-        {
-            var r = (pixel >> 16);
-            var g = (pixel >> 8) & 0xff;    
-            var b = (pixel) & 0xff;
-
-            r = Math.max(0, r - value);
-            g = Math.max(0, g - value);
-            b = Math.max(0, b - value);
-
-            return rgbToColor(r, g, b);
-        }
-
         function drawPixel(x, y, color)
         {
-            var index = width * y + x;   
-            buffer[index / scale] = color;        
-
             context.fillStyle = colorToString(color);
             context.fillRect(x * scale, y * scale, scale, scale);
-        }
-
-        function getPixel(x, y)
-        {
-            var index = width * y + x;           
-            value = buffer[index / scale];
-            return (value == null) ? 0 : value;
         }
 
         function randomValue(max)
