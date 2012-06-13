@@ -31,7 +31,7 @@ var canvasDemo = new function()
          initCoolingMap();
          initOffScreenContext();
 
-         context = element.getContext("2d");
+         context = element.getContext('2d');
 
          start = new Date().getTime();
 
@@ -74,7 +74,7 @@ var canvasDemo = new function()
         {
             for(y = 1; y < height / scale - 1; y++)
             {
-                var p = Math.floor((
+                var p = ~~((
                     coolingMap[toIndex(x, y - 1)] +
                     coolingMap[toIndex(x - 1, y)] +
                     coolingMap[toIndex(x + 1, y)] +
@@ -112,8 +112,8 @@ var canvasDemo = new function()
         });
     };
 
-    
     // take the middle pixel and average it with the surrounding pixels
+    // then write it one veritcal pixel up
     //
     // v1|v2|v3
     // v4|**|v5
@@ -124,7 +124,9 @@ var canvasDemo = new function()
         {
             for(var y = interleave; y < height / scale; y+= 2)
             {
-                var p = Math.floor((
+                // protip: a double bitwise not (~~) is much faster than
+                // Math.floor() for truncating floating point values into "ints"
+                var p = ~~((
                     colorMap[toIndex(x - 1, y - 1)] +
                     colorMap[toIndex(x, y - 1)] +
                     colorMap[toIndex(x + 1, y - 1)] +
@@ -156,7 +158,7 @@ var canvasDemo = new function()
                     value = 0;
                 
                 // don't draw black pixels
-                // speeds up framerate but leaves some nasty artifacts sometimes
+                // speeds up framerate but leaves nasty artifacts sometimes
                 if(value !== 0)
                     drawPixel(x, y, palette[value]);
             }
@@ -188,7 +190,7 @@ var canvasDemo = new function()
     // because "two-dimensional" arrays in JavaScript suck
     var toIndex = function(x, y)
     {
-        return Math.floor((width * y + x) / scale);
+        return ~~((width * y + x) / scale);
     };
 
     // 24-bit color value from RGB components
@@ -200,7 +202,7 @@ var canvasDemo = new function()
     // 24-bit color value to string (example: #ff00ff)
     var colorToString = function(color)
     {
-        return "#" + ("00000" + (color).toString(16)).slice(-6);
+        return '#' + ('00000' + (color).toString(16)).slice(-6);
     };
 
     // burns an image to screen using a binary pixel map
@@ -217,7 +219,6 @@ var canvasDemo = new function()
             for(var y = 0; y < 0 + (height / scale); y++)
             {
                 var data = offScreenContext.getImageData(x, y, 1, 1).data;
-
                 var index = toIndex(x - 0, y - 0);
 
                 if(data[0] == 255 && data[1] == 255 && data[2] == 255)
@@ -257,7 +258,7 @@ var canvasDemo = new function()
     {
         var now = new Date().getTime();
         var seconds = (now - start) / 1000;
-        return Math.floor(frames / seconds);
+        return Math.round(frames / seconds);
     };
 };
 
