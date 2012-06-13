@@ -1,12 +1,19 @@
 <html>
 <head>
-    <title></title>
+    <title>HTML5 Canvas Demo</title>
     <style type="text/css">
     body {
-        background-color:black;
+        background-color: black;
         color: ccc;
-        font-family: ‘Lucida Sans Unicode’, ‘Lucida Grande’, sans-serif;
+        font-family: 'Lucida Sans Unicode', 'Lucida Grande', sans-serif;
+        font-size: medium;
+        padding:10px;
+
     }
+    a:link {color:#f33;} 
+    a:visited {color:#f33;}
+    a:hover {color:#f33;}  
+    a:active {color:#f33;}
     </style>
     <script type="text/javascript" src="canvas.js"></script>
     <script type="text/javascript">
@@ -31,14 +38,38 @@
 <body>
     <div id="content">        
         <canvas id="canvas" width="320" height="200"></canvas>
+        <div id="controls">
+            <button id="fanDown" onclick="canvasDemo.fanDown()">&lt;</button>
+            <button id="fanUp" onclick="canvasDemo.fanUp()">&gt;</button>
+            <button id="grrr" onclick="canvasDemo.drawOverlay(grrr)">Grrr</button>
+            <button id="boo" onclick="canvasDemo.drawOverlay(boo)">Boo</button>
+            <button id="embers" onclick="canvasDemo.drawEmbers()">Embers</button>
+        </div>
+        <div id="framerate">FPS: &infin;</div>
+        <div>
+            <h2>HTML5 Canvas Demo</h2>
+            <p>This is a demo of an effect I've played with all the way back to
+                the x86 assembler days.  I'm teaching myself HTML5 so this
+                seemed like a good example to start with.  It's either a fire 
+                or lava demo, depending on how you perceive it.</p>
+            <p>Funny that a demo that could barely
+                run 30fps @ 320x200 back in the day still struggles at the
+                same resolution considering all the indirection involved with 
+                HTML5 and JavaScript. There's a lot of cheating going on to 
+                hit 30fps including pixel doubling and interlacing the updates 
+                to only draw half the pixels each frame.</p>
+            <p>I get around 30fps on a mid-2011 MacBook Air and about the same
+                an older Mac Pro (desktop).  Using Chromium 19.  Safari 5 is 
+                a few FPS slower. My iPad 1 gets less than 5fps :)</p>
+            <h2>Controls</h2>
+            <p>&lt;: Fan flames down.<br />
+            &gt;: Fan flames up.<br />
+            Grrr: Scary fire demon.<br />
+            Boo: More scary stuff.<br />
+            Embers: Spit embers all over screen.</p>
+            <h2>Source</h2>
+            <p><a href="">http://github.com/chrislongo</a></p>
+        </div>
     </div>
-    <div id="controls">
-        <button id="fanDown" onclick="canvasDemo.fanDown()">&lt;</button>
-        <button id="fanUp" onclick="canvasDemo.fanUp()">&gt;</button>
-        <button id="grrr" onclick="canvasDemo.drawOverlay(grrr)">Grrr</button>
-        <button id="boo" onclick="canvasDemo.drawOverlay(boo)">Boo</button>
-        <button id="embers" onclick="canvasDemo.drawEmbers()">Ember</button>
-    </div>
-    <div id="framerate"></div>
 </body>
 </html>

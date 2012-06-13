@@ -39,6 +39,7 @@ var canvasDemo = new function()
          update();
     };
 
+    // init palette from warm to white hot colors
     var initPalette = function()
     {
         palette = Array(256);
@@ -52,6 +53,13 @@ var canvasDemo = new function()
         }
     };
 
+    // color map is a scaled map with values 0 - 255 corresponding
+    // to palette values
+    // this allows manipulation of the display colors without mucking with
+    // large 32-bit color values directly
+    //
+    // cooling map is the same thing with small "cooling" values
+    // to set areas of "cool" pixels
     var initCoolingMap = function()
     {
         for(x = 0; x < width / scale; x++)
@@ -77,6 +85,7 @@ var canvasDemo = new function()
         }
     };
 
+    // offscreen buffer for rendering image masks for burning onscreen
     var initOffScreenContext = function()
     {
         var canvas = document.createElement('canvas');
@@ -85,8 +94,10 @@ var canvasDemo = new function()
         offScreenContext = canvas.getContext("2d");
     };
 
+    // main render loop
     var update = function()
     {
+        // draw two lines of random palette noise at bottom of screen
         for(x = 0; x < width / scale; x++)
         {
             colorMap[toIndex(x, height / scale)] = randomValue(palette.length);
@@ -101,6 +112,12 @@ var canvasDemo = new function()
         });
     };
 
+    
+    // take the middle pixel and average it with the surrounding pixels
+    //
+    // v1|v2|v3
+    // v4|**|v5
+    // v6|v7|v8
     var smooth = function()
     {
         for(var x = 1; x < width / scale - 1; x++)
@@ -125,6 +142,7 @@ var canvasDemo = new function()
         }
     };
 
+    // draw colormap->palette values to screen
     var draw = function()
     {
         for(var x = 0; x < width / scale; x++)
@@ -137,6 +155,8 @@ var canvasDemo = new function()
                 if(value === null)
                     value = 0;
                 
+                // don't draw black pixels
+                // speeds up framerate but leaves some nasty artifacts sometimes
                 if(value !== 0)
                     drawPixel(x, y, palette[value]);
             }
@@ -146,6 +166,8 @@ var canvasDemo = new function()
         frames++;
     };
 
+    // not using the context.imageData to draw pixels
+    // using fillRect allows for doubling "pixels" for increased framerate
     var drawPixel = function(x, y, color)
     {
         context.fillStyle = colorToString(color);
@@ -163,21 +185,27 @@ var canvasDemo = new function()
         return Math.round(Math.random() * (max - 1));
     };
 
+    // because "two-dimensional" arrays in JavaScript suck
     var toIndex = function(x, y)
     {
         return Math.floor((width * y + x) / scale);
     };
 
+    // 24-bit color value from RGB components
     var rgbToColor = function(r, g, b)
     {
         return (r << 16 | g << 8 | b);
     };
 
+    // 24-bit color value to string (example: #ff00ff)
     var colorToString = function(color)
     {
         return "#" + ("00000" + (color).toString(16)).slice(-6);
     };
 
+    // burns an image to screen using a binary pixel map
+    // if the map's pixel is white (on) a random palette color is burned into
+    // that place onscreen
     this.drawOverlay = function(image)
     {
         clear();
@@ -200,6 +228,7 @@ var canvasDemo = new function()
         }
     };
 
+    // draw a bunch of random embers onscreen
     this.drawEmbers = function()
     {
         for(var x = 1; x < width / scale - 1; x++)
@@ -207,16 +236,18 @@ var canvasDemo = new function()
             for(var y = 1; y < height; y++)
             {
                 if(randomValue(10) === 0)
-                    colorMap[toIndex(x, y)] = randomValue(256);
+                    colorMap[toIndex(x, y)] = randomValue(palette.length);
             }
         }
     };
 
+    // fans the flames down
     this.fanDown = function()
     {
         fan = Math.min(5, fan + 1);
     };
 
+    // fans the flame up
     this.fanUp = function()
     {
         fan = Math.max(-1, fan - 1);
