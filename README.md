@@ -11,7 +11,7 @@ Funny that a demo that could barely
     run @ 320x200 back in the day still struggles at the
     same resolution considering all the indirection involved with 
     HTML5 and JavaScript. There's a lot of cheating going on to 
-    hit 30fps including pixel doubling and interlacing the updates 
+    hit 30fps including pixel doubling and interleaving the updates 
     to only draw half the pixels each frame.
 
 I get around 45fps on a mid-2011 MacBook Air and about the same
