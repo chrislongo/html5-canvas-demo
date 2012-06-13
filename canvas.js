@@ -11,7 +11,6 @@ var canvasDemo = new function()
     var fan = 0;
     var start;
     var frames = 0;
-    var interleave = 0;
     var slack = 5;
 
     this.init = function(canvasElement)
@@ -122,7 +121,7 @@ var canvasDemo = new function()
     {
         for(var x = 1; x < width / scale - 1; x++)
         {
-            for(var y = interleave; y < height / scale; y+= 2)
+            for(var y = 0; y < height / scale; y++)
             {
                 // protip: a double bitwise not (~~) is much faster than
                 // Math.floor() for truncating floating point values into "ints"
@@ -149,7 +148,7 @@ var canvasDemo = new function()
     {
         for(var x = 0; x < width / scale; x++)
         {
-            for(var y = interleave; y < height / scale - slack; y+= 2)
+            for(var y = 0; y < height / scale - slack; y++)
             {
                 var index = toIndex(x, y);
                 var value = colorMap[index];
@@ -164,7 +163,6 @@ var canvasDemo = new function()
             }
         }
 
-        interleave = !interleave;
         frames++;
     };
 
