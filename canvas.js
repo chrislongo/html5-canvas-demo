@@ -43,7 +43,7 @@ var canvasDemo = new function()
     {
         palette = Array(256);
 
-        for(i = 0; i < 64; i++)
+        for(var i = 0; i < 64; i++)
         {
             palette[i] = rgbToColor((i << 2), 0, 0);
             palette[i + 64] = rgbToColor(255, (i << 2), 0);
@@ -61,17 +61,17 @@ var canvasDemo = new function()
     // to set areas of "cool" pixels
     var initCoolingMap = function()
     {
-        for(x = 0; x < width / scale; x++)
+        for(var x = 0; x < width / scale; x++)
         {
-            for(y = 0; y < height / scale; y++)
+            for(var y = 0; y < height / scale; y++)
             {
                 coolingMap[toIndex(x, y)] = randomValue(5);
             }
         }
 
-        for(x = 1; x < width / scale - 1; x++)
+        for(var x = 1; x < width / scale - 1; x++)
         {
-            for(y = 1; y < height / scale - 1; y++)
+            for(var y = 1; y < height / scale - 1; y++)
             {
                 var p = ~~((
                     coolingMap[toIndex(x, y - 1)] +
@@ -97,7 +97,7 @@ var canvasDemo = new function()
     var update = function()
     {
         // draw two lines of random palette noise at bottom of screen
-        for(x = 0; x < width / scale; x++)
+        for(var x = width / scale; x--;)
         {
             colorMap[toIndex(x, height / scale)] = randomValue(palette.length);
             colorMap[toIndex(x, height / scale - 1)] = randomValue(palette.length);
@@ -119,9 +119,9 @@ var canvasDemo = new function()
     // v6|v7|v8
     var smooth = function()
     {
-        for(var x = 1; x < width / scale - 1; x++)
+        for(var x = width / scale - 1; x >= 1; x--)
         {
-            for(var y = 0; y < height / scale; y++)
+            for(var y = height / scale; y--;)
             {
                 // protip: a double bitwise not (~~) is much faster than
                 // Math.floor() for truncating floating point values into "ints"
@@ -146,19 +146,16 @@ var canvasDemo = new function()
     // draw colormap->palette values to screen
     var draw = function()
     {
-        for(var x = 0; x < width / scale; x++)
+        for(var x = width / scale; x--;)
         {
-            for(var y = 0; y < height / scale - slack; y++)
+            for(var y = height / scale - slack; y--;)
             {
                 var index = toIndex(x, y);
                 var value = colorMap[index];
                 
-                if(value === null)
-                    value = 0;
-                
                 // don't draw black pixels
                 // speeds up framerate but leaves nasty artifacts sometimes
-                if(value !== 0)
+                if(~~(value) !== 0)
                     drawPixel(x, y, palette[value]);
             }
         }
@@ -206,9 +203,9 @@ var canvasDemo = new function()
 
         offScreenContext.drawImage(image, 0, 0, width / scale, height / scale);
 
-        for(var x = 0; x < 0 + (width / scale); x++)
+        for(var x = width / scale; x--;)
         {
-            for(var y = 0; y < 0 + (height / scale); y++)
+            for(var y = height / scale; y--;)
             {
                 var data = offScreenContext.getImageData(x, y, 1, 1).data;
                 var index = toIndex(x - 0, y - 0);
