@@ -1,5 +1,7 @@
 #HTML5 Canvas Demo
 
+http://chrislongo.net/html5/canvas/
+
 This is a demo of an effect I've played with all the way back to
     the x86 assembler days.  I'm teaching myself HTML5 so this
     seemed like a good example to start with.  It's either a fire 
