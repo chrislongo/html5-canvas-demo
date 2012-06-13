@@ -172,7 +172,7 @@ var canvasDemo = new function()
     // using fillRect allows for doubling "pixels" for increased framerate
     var drawPixel = function(x, y, color)
     {
-        context.fillStyle = colorToString(color);
+        context.fillStyle = color;
         context.fillRect(x * scale, y * scale, scale, scale);
     };
 
@@ -193,16 +193,10 @@ var canvasDemo = new function()
         return ~~((width * y + x) / scale);
     };
 
-    // 24-bit color value from RGB components
+    // 24-bit color value to string (example: rgb(255, 0, 255))
     var rgbToColor = function(r, g, b)
     {
-        return (r << 16 | g << 8 | b);
-    };
-
-    // 24-bit color value to string (example: #ff00ff)
-    var colorToString = function(color)
-    {
-        return '#' + ('00000' + (color).toString(16)).slice(-6);
+        return 'rgb(' + r + ',' + g + ',' + b + ')';
     };
 
     // burns an image to screen using a binary pixel map

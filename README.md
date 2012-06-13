@@ -8,12 +8,12 @@ This is a demo of an effect I've played with all the way back to
     or lava demo, depending on how you perceive it.
 
 Funny that a demo that could barely
-    run 30fps @ 320x200 back in the day still struggles at the
+    run @ 320x200 back in the day still struggles at the
     same resolution considering all the indirection involved with 
     HTML5 and JavaScript. There's a lot of cheating going on to 
     hit 30fps including pixel doubling and interlacing the updates 
     to only draw half the pixels each frame.
 
-I get around 30fps on a mid-2011 MacBook Air and about the same
+I get around 45fps on a mid-2011 MacBook Air and about the same
     an older Mac Pro (desktop).  Using Chromium 19.  Safari 5 is 
     a few FPS slower. My iPad 1 gets less than 5fps :)
