@@ -16,9 +16,10 @@ var canvasDemo = new function()
     var frames = 0;
     var slack = 5;
 
-    this.init = function(canvasElement)
+    this.canvas = undefined;
+
+    this.init = function()
     {
-        var canvas = document.getElementById(canvasElement);
         context = canvas.getContext('2d');
 
         width = canvas.width / scale;
@@ -198,17 +199,17 @@ var canvasDemo = new function()
         clear();
 
         bufferContext.drawImage(image, 0, 0, width, height);
+        var data = bufferContext.getImageData(0, 0, width, height).data;
 
         for(var x = width; x--;)
         {
             for(var y = height; y--;)
             {
-                var data = bufferContext.getImageData(x, y, 1, 1).data;
                 var index = toIndex(x - 0, y - 0);
 
                 // it's a binary color mask (black or white)
                 // so if any RGB component is set, it's white, right? ;)
-                if(data[0] !== 0)
+                if(data[(x + y * width) * 4] !== 0)
                     colorMap[index] = randomValue(palette.length);
                 else
                     colorMap[index] = 0;
