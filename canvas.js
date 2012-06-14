@@ -92,25 +92,18 @@ var canvasDemo = new function()
         buffer = document.createElement('canvas');
         buffer.width = width;
         buffer.height = height;
-        buffer.style.visibility='hidden';
+        buffer.style.visibility = 'hidden';
         
         bufferContext = buffer.getContext("2d");
-        
         imageData = bufferContext.createImageData(width, height);
     };
 
     // main render loop
     var update = function()
     {
-        // draw two lines of random palette noise at bottom of screen
-        for(var x = width; x--;)
-        {
-            colorMap[toIndex(x, height)] = randomValue(palette.length);
-            colorMap[toIndex(x, height - 1)] = randomValue(palette.length);
-        }
-
         smooth();
         draw();
+        frames++;
 
         requestAnimFrame(function() { update(); });
     };
@@ -143,6 +136,21 @@ var canvasDemo = new function()
                 p = Math.max(0, p - cool);
 
                 colorMap[toIndex(x, y - 1)] = p;
+
+                if(y < height - slack) // don't draw random noise in bottom rows
+                {
+                    if(y < height - 2)
+                    {
+                        // draw two lines of random palette noise at bottom of
+                        // screen
+                        colorMap[toIndex(x, height)] =
+                            randomValue(palette.length);
+                        colorMap[toIndex(x, height - 1)] =
+                            randomValue(palette.length);
+                    }
+
+                    drawPixel(x, y, palette[colorMap[toIndex(x, y)]]);
+                }
             }
         }
     };
@@ -150,23 +158,10 @@ var canvasDemo = new function()
     // draw colormap->palette values to screen
     var draw = function()
     {
-        for(var x = width; x--;)
-        {
-            for(var y = height - slack; y--;)
-            {
-                var index = toIndex(x, y);
-                var value = colorMap[index];
-                
-                drawPixel(x, y, palette[value]);
-            }
-        }
-
         // render the image data to the offscreen buffer...
         bufferContext.putImageData(imageData, 0, 0);
         // ...then draw it to scale to the onscreen canvas
         context.drawImage(buffer, 0, 0, width * scale, height * scale);
-
-        frames++;
     };
 
     // not using the context.imageData to draw pixels
