@@ -7,6 +7,7 @@ var canvasDemo = new function()
     var palette;
     var colorMap;
     var coolingMap;
+    var coolingFactor = 5;
     var width;
     var height;
     var scale = 2;
@@ -66,7 +67,7 @@ var canvasDemo = new function()
         {
             for(var y = 0; y < height; y++)
             {
-                coolingMap[toIndex(x, y)] = randomValue(5);
+                coolingMap[toIndex(x, y)] = randomValue(coolingFactor);
             }
         }
 
@@ -162,7 +163,9 @@ var canvasDemo = new function()
             }
         }
 
+        // render the image data to the offscreen buffer...
         bufferContext.putImageData(imageData, 0, 0);
+        // ...then draw it to scale to the onscreen canvas
         context.drawImage(buffer, 0, 0, width * scale, height * scale);
 
         frames++;
@@ -196,12 +199,6 @@ var canvasDemo = new function()
         return ~~((width * y + x));
     };
 
-    // 24-bit color value to string (example: rgb(255, 0, 255))
-    var rgbToColor = function(r, g, b)
-    {
-        return 'rgb(' + r + ',' + g + ',' + b + ')';
-    };
-
     // burns an image to screen using a binary pixel map
     // if the map's pixel is white (on) a random palette color is burned into
     // that place onscreen
@@ -218,7 +215,9 @@ var canvasDemo = new function()
                 var data = bufferContext.getImageData(x, y, 1, 1).data;
                 var index = toIndex(x - 0, y - 0);
 
-                if(data[0] == 255 && data[1] == 255 && data[2] == 255)
+                // it's a binary color mask (black or white)
+                // so if any RBG component is set, it's white, right? ;)
+                if(data[0] !== 0)
                     colorMap[index] = randomValue(palette.length);
                 else
                     colorMap[index] = 0;
