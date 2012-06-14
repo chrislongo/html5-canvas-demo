@@ -216,7 +216,7 @@ var canvasDemo = new function()
                 var index = toIndex(x - 0, y - 0);
 
                 // it's a binary color mask (black or white)
-                // so if any RBG component is set, it's white, right? ;)
+                // so if any RGB component is set, it's white, right? ;)
                 if(data[0] !== 0)
                     colorMap[index] = randomValue(palette.length);
                 else
