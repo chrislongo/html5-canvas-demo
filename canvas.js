@@ -112,9 +112,7 @@ var canvasDemo = new function()
         smooth();
         draw();
 
-        requestAnimFrame(function(){
-            update();
-        });
+        requestAnimFrame(function() { update(); });
     };
 
     // take the middle pixel and average it with the surrounding pixels
