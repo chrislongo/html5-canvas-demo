@@ -12,7 +12,7 @@ var canvasDemo = new function()
     var height;
     var scale = 2;
     var fan = 0;
-    var start;
+    var start = new Date();
     var frames = 0;
     var slack = 5;
 
@@ -33,8 +33,6 @@ var canvasDemo = new function()
         initPalette();
         initCoolingMap();
         initBuffer();
-
-        start = new Date().getTime();
 
         clear();
         update();
@@ -245,9 +243,14 @@ var canvasDemo = new function()
 
     this.framerate = function()
     {
-        var now = new Date().getTime();
+        var now = new Date();
         var seconds = (now - start) / 1000;
-        return Math.round(frames / seconds);
+        var rate = frames / seconds;
+
+        start = now;
+        frames = 0;
+
+        return Math.round(rate);
     };
 };
 
