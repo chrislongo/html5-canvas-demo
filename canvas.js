@@ -1,7 +1,9 @@
 var canvasDemo = new function() 
 {
     var context;
-    var offScreenContext;
+    var buffer;
+    var bufferContext;
+    var imageData;
     var palette;
     var colorMap;
     var coolingMap;
@@ -15,27 +17,26 @@ var canvasDemo = new function()
 
     this.init = function(canvasElement)
     {
-         initPalette();
+        var canvas = document.getElementById(canvasElement);
+        context = canvas.getContext('2d');
 
-         element = document.getElementById(canvasElement);
-         width = element.width;
-         height = element.height;
+        width = canvas.width / scale;
+        height = canvas.height / scale;
 
-         colorMap = Array(width * height / scale);
-         coolingMap = Array(width * height / scale);
+        coolingMap = Array(width * height);
+        colorMap = Array(width * height);
 
-         for(var i = 0; i < colorMap.length; i++)
+        for(var i = 0; i < colorMap.length; i++)
             colorMap[i] = 0;
 
-         initCoolingMap();
-         initOffScreenContext();
+        initPalette();
+        initCoolingMap();
+        initBuffer();
 
-         context = element.getContext('2d');
+        start = new Date().getTime();
 
-         start = new Date().getTime();
-
-         clear();
-         update();
+        clear();
+        update();
     };
 
     // init palette from warm to white hot colors
@@ -45,10 +46,10 @@ var canvasDemo = new function()
 
         for(var i = 0; i < 64; i++)
         {
-            palette[i] = rgbToColor((i << 2), 0, 0);
-            palette[i + 64] = rgbToColor(255, (i << 2), 0);
-            palette[i + 128] = rgbToColor(255, 255, (i << 2));
-            palette[i + 192] = rgbToColor(255, 255, 255);
+            palette[i] = [(i << 2), 0, 0];
+            palette[i + 64] = [255, (i << 2), 0];
+            palette[i + 128] = [255, 255, (i << 2)];
+            palette[i + 192] = [255, 255, 255];
         }
     };
 
@@ -61,17 +62,17 @@ var canvasDemo = new function()
     // to set areas of "cool" pixels
     var initCoolingMap = function()
     {
-        for(var x = 0; x < width / scale; x++)
+        for(var x = 0; x < width; x++)
         {
-            for(var y = 0; y < height / scale; y++)
+            for(var y = 0; y < height; y++)
             {
                 coolingMap[toIndex(x, y)] = randomValue(5);
             }
         }
 
-        for(var x = 1; x < width / scale - 1; x++)
+        for(var x = 1; x < width - 1; x++)
         {
-            for(var y = 1; y < height / scale - 1; y++)
+            for(var y = 1; y < height - 1; y++)
             {
                 var p = ~~((
                     coolingMap[toIndex(x, y - 1)] +
@@ -85,22 +86,26 @@ var canvasDemo = new function()
     };
 
     // offscreen buffer for rendering image masks for burning onscreen
-    var initOffScreenContext = function()
+    var initBuffer = function()
     {
-        var canvas = document.createElement('canvas');
-        canvas.width = width / scale;
-        canvas.height = width / scale;
-        offScreenContext = canvas.getContext("2d");
+        buffer = document.createElement('canvas');
+        buffer.width = width;
+        buffer.height = height;
+        buffer.style.visibility='hidden';
+        
+        bufferContext = buffer.getContext("2d");
+        
+        imageData = bufferContext.createImageData(width, height);
     };
 
     // main render loop
     var update = function()
     {
         // draw two lines of random palette noise at bottom of screen
-        for(var x = width / scale; x--;)
+        for(var x = width; x--;)
         {
-            colorMap[toIndex(x, height / scale)] = randomValue(palette.length);
-            colorMap[toIndex(x, height / scale - 1)] = randomValue(palette.length);
+            colorMap[toIndex(x, height)] = randomValue(palette.length);
+            colorMap[toIndex(x, height - 1)] = randomValue(palette.length);
         }
 
         smooth();
@@ -119,9 +124,9 @@ var canvasDemo = new function()
     // v6|v7|v8
     var smooth = function()
     {
-        for(var x = width / scale - 1; x >= 1; x--)
+        for(var x = width - 1; x >= 1; x--)
         {
-            for(var y = height / scale; y--;)
+            for(var y = height; y--;)
             {
                 // protip: a double bitwise not (~~) is much faster than
                 // Math.floor() for truncating floating point values into "ints"
@@ -146,19 +151,19 @@ var canvasDemo = new function()
     // draw colormap->palette values to screen
     var draw = function()
     {
-        for(var x = width / scale; x--;)
+        for(var x = width; x--;)
         {
-            for(var y = height / scale - slack; y--;)
+            for(var y = height - slack; y--;)
             {
                 var index = toIndex(x, y);
                 var value = colorMap[index];
                 
-                // don't draw black pixels
-                // speeds up framerate but leaves nasty artifacts sometimes
-                if(~~(value) !== 0)
-                    drawPixel(x, y, palette[value]);
+                drawPixel(x, y, palette[value]);
             }
         }
+
+        bufferContext.putImageData(imageData, 0, 0);
+        context.drawImage(buffer, 0, 0, width * scale, height * scale);
 
         frames++;
     };
@@ -167,25 +172,28 @@ var canvasDemo = new function()
     // using fillRect allows for doubling "pixels" for increased framerate
     var drawPixel = function(x, y, color)
     {
-        context.fillStyle = color;
-        context.fillRect(x * scale, y * scale, scale, scale);
+        var offset = (x + y * imageData.width) * 4;
+        imageData.data[offset] = color[0];
+        imageData.data[offset + 1] = color[1];
+        imageData.data[offset + 2] = color[2];
+        imageData.data[offset + 3] = 255;
     };
 
     var clear = function()
     {
-        context.fillStyle = 'rgb(0, 0, 0)';
-        context.fillRect(0, 0, width, height - (5 + slack));
+        bufferContext.fillStyle = 'rgb(0, 0, 0)';
+        bufferContext.fillRect(0, 0, width, height - (5 + slack));
     };
 
     var randomValue = function(max)
     {
-        return Math.round(Math.random() * (max - 1));
+        return ~~(Math.random() * (max - 1));
     };
 
     // because "two-dimensional" arrays in JavaScript suck
     var toIndex = function(x, y)
     {
-        return ~~((width * y + x) / scale);
+        return ~~((width * y + x));
     };
 
     // 24-bit color value to string (example: rgb(255, 0, 255))
@@ -201,13 +209,13 @@ var canvasDemo = new function()
     {
         clear();
 
-        offScreenContext.drawImage(image, 0, 0, width / scale, height / scale);
+        bufferContext.drawImage(image, 0, 0, width, height);
 
-        for(var x = width / scale; x--;)
+        for(var x = width; x--;)
         {
-            for(var y = height / scale; y--;)
+            for(var y = height; y--;)
             {
-                var data = offScreenContext.getImageData(x, y, 1, 1).data;
+                var data = bufferContext.getImageData(x, y, 1, 1).data;
                 var index = toIndex(x - 0, y - 0);
 
                 if(data[0] == 255 && data[1] == 255 && data[2] == 255)
@@ -221,7 +229,7 @@ var canvasDemo = new function()
     // draw a bunch of random embers onscreen
     this.drawEmbers = function()
     {
-        for(var x = 1; x < width / scale - 1; x++)
+        for(var x = 1; x < width - 1; x++)
         {
             for(var y = 1; y < height; y++)
             {
