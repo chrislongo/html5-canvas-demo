@@ -1,3 +1,5 @@
+// 2012 Chris Longo (cal@chrislongo.net)
+
 var canvasDemo = new function() 
 {
     var context;
@@ -7,7 +9,7 @@ var canvasDemo = new function()
     var palette;
     var colorMap;
     var coolingMap;
-    var coolingFactor = 5;
+    var coolingFactor = 4;
     var width;
     var height;
     var scale = 2;
@@ -140,8 +142,8 @@ var canvasDemo = new function()
                 {
                     if(y < height - 2)
                     {
-                        // draw two lines of random palette noise at bottom of
-                        // screen
+                        // set two lines of random palette noise at bottom of
+                        // colorMap
                         colorMap[toIndex(x, height)] =
                             randomValue(palette.length);
                         colorMap[toIndex(x, height - 1)] =
@@ -176,19 +178,18 @@ var canvasDemo = new function()
 
     var clear = function()
     {
-        bufferContext.fillStyle = 'rgb(0, 0, 0)';
-        bufferContext.fillRect(0, 0, width, height - (5 + slack));
+        bufferContext.clearRect(0, 0, width, height - (5 + slack));
     };
 
     var randomValue = function(max)
     {
-        return ~~(Math.random() * (max - 1));
+        return ~~(Math.random() * max);
     };
 
     // because "two-dimensional" arrays in JavaScript suck
     var toIndex = function(x, y)
     {
-        return ~~((width * y + x));
+        return ~~(width * y + x);
     };
 
     // burns an image to screen using a binary pixel map
@@ -224,7 +225,7 @@ var canvasDemo = new function()
         {
             for(var y = 1; y < height; y++)
             {
-                if(randomValue(10) === 0)
+                if(randomValue(11) === 0)
                     colorMap[toIndex(x, y)] = randomValue(palette.length);
             }
         }
@@ -233,7 +234,7 @@ var canvasDemo = new function()
     // fans the flames down
     this.fanDown = function()
     {
-        fan = Math.min(5, fan + 1);
+        fan = Math.min(4, fan + 1);
     };
 
     // fans the flame up
