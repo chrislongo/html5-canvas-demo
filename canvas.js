@@ -8,12 +8,10 @@ var canvasDemo = new function()
     var imageData;
     var palette;
     var colorMap;
-    var coolingMap;
-    var coolingFactor = 4;
     var width;
     var height;
     var scale = 2;
-    var fan = 0;
+    var fan = 2.5;
     var start = new Date();
     var frames = 0;
     var slack = 5;
@@ -27,14 +25,12 @@ var canvasDemo = new function()
         width = canvas.width / scale;
         height = canvas.height / scale;
 
-        coolingMap = Array(width * height);
         colorMap = Array(width * height);
 
         for(var i = 0; i < colorMap.length; i++)
             colorMap[i] = 0;
 
         initPalette();
-        initCoolingMap();
         initBuffer();
 
         clear();
@@ -52,38 +48,6 @@ var canvasDemo = new function()
             palette[i + 64] = [255, (i << 2), 0];
             palette[i + 128] = [255, 255, (i << 2)];
             palette[i + 192] = [255, 255, 255];
-        }
-    };
-
-    // color map is a scaled map with values 0 - 255 corresponding
-    // to palette values
-    // this allows manipulation of the display colors without mucking with
-    // large 32-bit color values directly
-    //
-    // cooling map is the same thing with small "cooling" values
-    // to set areas of "cool" pixels
-    var initCoolingMap = function()
-    {
-        for(var x = 0; x < width; x++)
-        {
-            for(var y = 0; y < height; y++)
-            {
-                coolingMap[toIndex(x, y)] = randomValue(coolingFactor);
-            }
-        }
-
-        for(var x = 1; x < width - 1; x++)
-        {
-            for(var y = 1; y < height - 1; y++)
-            {
-                var p = ~~((
-                    coolingMap[toIndex(x, y - 1)] +
-                    coolingMap[toIndex(x - 1, y)] +
-                    coolingMap[toIndex(x + 1, y)] +
-                    coolingMap[toIndex(x, y + 1)]) / 4);
-
-                coolingMap[toIndex(x, y)] = p;
-            }
         }
     };
 
@@ -133,8 +97,7 @@ var canvasDemo = new function()
                     colorMap[toIndex(x, y + 1)] +
                     colorMap[toIndex(x + 1, y + 1)]) / 8);
 
-                var cool = coolingMap[toIndex(x, y)] + fan;
-                p = Math.max(0, p - cool);
+                p = Math.max(0, p - randomValue(fan));
 
                 colorMap[toIndex(x, y - 1)] = p;
 
@@ -234,13 +197,13 @@ var canvasDemo = new function()
     // fans the flames down
     this.fanDown = function()
     {
-        fan = Math.min(4, fan + 1);
+        fan = Math.min(6, fan + 0.5);
     };
 
     // fans the flame up
     this.fanUp = function()
     {
-        fan = Math.max(-1, fan - 1);
+        fan = Math.max(-1, fan - 0.5);
     };
 
     this.framerate = function()
