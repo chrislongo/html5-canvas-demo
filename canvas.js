@@ -33,7 +33,6 @@ var canvasDemo = new function()
         initPalette();
         initBuffer();
 
-        clear();
         update();
     };
 
@@ -51,7 +50,7 @@ var canvasDemo = new function()
         }
     };
 
-    // offscreen buffer for rendering image masks for burning onscreen
+    // offscreen buffer for rendering and scaling
     var initBuffer = function()
     {
         buffer = document.createElement('canvas');
@@ -128,8 +127,7 @@ var canvasDemo = new function()
         context.drawImage(buffer, 0, 0, width * scale, height * scale);
     };
 
-    // not using the context.imageData to draw pixels
-    // using fillRect allows for doubling "pixels" for increased framerate
+    // set pixels in imageData
     var drawPixel = function(x, y, color)
     {
         var offset = (x + y * imageData.width) * 4;
