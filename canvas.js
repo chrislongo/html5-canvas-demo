@@ -84,9 +84,7 @@ var canvasDemo = new function()
         {
             for(var y = height; y--;)
             {
-                // protip: a double bitwise not (~~) is much faster than
-                // Math.floor() for truncating floating point values into "ints"
-                var p = ~~((
+                var p = ((
                     colorMap[toIndex(x - 1, y - 1)] +
                     colorMap[toIndex(x, y - 1)] +
                     colorMap[toIndex(x + 1, y - 1)] +
@@ -94,7 +92,7 @@ var canvasDemo = new function()
                     colorMap[toIndex(x + 1, y)] +
                     colorMap[toIndex(x - 1, y + 1)] +
                     colorMap[toIndex(x, y + 1)] +
-                    colorMap[toIndex(x + 1, y + 1)]) / 8);
+                    colorMap[toIndex(x + 1, y + 1)]) >> 3);
 
                 p = Math.max(0, p - randomValue(fan));
 
@@ -144,13 +142,15 @@ var canvasDemo = new function()
 
     var randomValue = function(max)
     {
+        // protip: a double bitwise not (~~) is much faster than
+        // Math.floor() for truncating floating point values into "ints"
         return ~~(Math.random() * max);
     };
 
     // because "two-dimensional" arrays in JavaScript suck
     var toIndex = function(x, y)
     {
-        return ~~(width * y + x);
+        return (y * width + x);
     };
 
     // burns an image to screen using a binary pixel map
