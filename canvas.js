@@ -20,10 +20,10 @@ var canvasDemo = new function()
 
     this.init = function()
     {
-        context = canvas.getContext('2d');
+        context = this.canvas.getContext('2d');
 
-        width = canvas.width / scale;
-        height = canvas.height / scale;
+        width = this.canvas.width / scale;
+        height = this.canvas.height / scale;
 
         colorMap = Array(width * height);
 
@@ -186,7 +186,7 @@ var canvasDemo = new function()
         {
             for(var y = 1; y < height; y++)
             {
-                if(randomValue(11) === 0)
+                if(Math.random() < 0.11)
                     colorMap[toIndex(x, y)] = randomValue(palette.length);
             }
         }
