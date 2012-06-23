@@ -1,5 +1,7 @@
 #HTML5 Canvas Demo
 
+![A picture of the fire demo in action](http://chrislongo.net/html5/fire.png)
+
 http://chrislongo.net/html5/canvas/
 
 This is a demo of an effect I've played with all the way back to
